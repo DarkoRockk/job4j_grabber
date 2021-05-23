@@ -42,6 +42,8 @@ public class AlertRabbit {
 
     public static class Rabbit implements Job {
 
+        private static Properties config;
+
         @Override
         public void execute(JobExecutionContext context) throws JobExecutionException {
             Connection cn = (Connection) context.getJobDetail().getJobDataMap().get("connection");
@@ -54,33 +56,43 @@ public class AlertRabbit {
         }
     }
 
+    public static Properties getProperties() {
+        if (Rabbit.config == null) {
+            try (InputStream in = AlertRabbit.class
+                    .getClassLoader().getResourceAsStream("rabbit.properties")) {
+                Rabbit.config = new Properties();
+                Rabbit.config.load(in);
+
+            } catch (IOException e) {
+                throw new IllegalStateException(e);
+            }
+        }
+        return Rabbit.config;
+    }
+
     public static int load() {
         int rsl = 0;
-        try (InputStream in = AlertRabbit.class
-                .getClassLoader().getResourceAsStream("rabbit.properties")) {
-            Properties config = new Properties();
-            config.load(in);
-            rsl = Integer.parseInt(config.getProperty("rabbit.interval"));
-        } catch (IOException e) {
-            throw new IllegalStateException(e);
-        }
+        getProperties();
+        rsl = Integer.parseInt(Rabbit.config.getProperty("rabbit.interval"));
         return rsl;
     }
 
     public static Connection getConnection() {
-        Connection cn;
-        try (InputStream in = AlertRabbit.class
-                .getClassLoader().getResourceAsStream("rabbit.properties")) {
-            Properties config = new Properties();
-            config.load(in);
-            Class.forName(config.getProperty("driver-class-name"));
+        Connection cn = null;
+        getProperties();
+        try {
+            Class.forName(Rabbit.config.getProperty("driver-class-name"));
+        } catch (ClassNotFoundException e) {
+            e.printStackTrace();
+        }
+        try {
             cn = DriverManager.getConnection(
-                    config.getProperty("url"),
-                    config.getProperty("username"),
-                    config.getProperty("password")
-            );
-        } catch (Exception e) {
-            throw new IllegalStateException(e);
+                        Rabbit.config.getProperty("url"),
+                        Rabbit.config.getProperty("username"),
+                        Rabbit.config.getProperty("password")
+                );
+        } catch (SQLException throwables) {
+            throwables.printStackTrace();
         }
         return cn;
     }
