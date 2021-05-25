@@ -1,5 +1,12 @@
-package ru.job4j;
+package ru.job4j.html;
 
+import org.jsoup.Jsoup;
+import org.jsoup.nodes.Document;
+import org.jsoup.select.Elements;
+import org.jsoup.nodes.Element;
+import ru.job4j.grabber.utils.SqlRuDateTimeParser;
+
+import java.io.IOException;
 import java.time.LocalDateTime;
 import java.util.Objects;
 
@@ -9,6 +16,24 @@ public class Post {
     private String text;
     private String link;
     private LocalDateTime created;
+
+    public void setTextDate(String url) {
+        try {
+            Document doc = Jsoup.connect(url).get();
+            Elements row = doc.select(".msgBody");
+            Element text = row.get(1);
+            this.text = text.text();
+
+            SqlRuDateTimeParser parser = new SqlRuDateTimeParser();
+            Elements dates = doc.select(".msgFooter");
+            Element date = dates.get(0);
+            String all = date.text();
+            int index = all.lastIndexOf(":");
+            this.created = parser.parse(all.substring(0, index + 3));
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
 
     public int getId() {
         return id;
@@ -61,5 +86,12 @@ public class Post {
     @Override
     public int hashCode() {
         return Objects.hash(id, name, text, link, created);
+    }
+
+    public static void main(String[] args) {
+        Post post = new Post();
+        post.setTextDate("https://www.sql.ru/forum/1325330/lidy-be-fe-senior-cistemnye-analitiki-qa-i-devops-moskva-do-200t");
+        System.out.println(post.getText());
+        System.out.println(post.getCreated());
     }
 }
