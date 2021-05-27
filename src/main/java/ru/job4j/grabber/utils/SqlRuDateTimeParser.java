@@ -7,7 +7,7 @@ import java.time.format.DateTimeFormatter;
 import java.util.HashMap;
 import java.util.Map;
 
-public class SqlRuDateTimeParser implements DateTimeParser{
+public class SqlRuDateTimeParser implements DateTimeParser {
     @Override
     public LocalDateTime parse(String parse) {
         Map<String, String> months = new HashMap<>();
@@ -51,7 +51,7 @@ public class SqlRuDateTimeParser implements DateTimeParser{
     public static void main(String[] args) {
         SqlRuDateTimeParser parser = new SqlRuDateTimeParser();
         String dd = "вчера, 17:16";
-        LocalDateTime ddd= parser.parse(dd);
+        LocalDateTime ddd = parser.parse(dd);
         System.out.println(ddd);
     }
 }
