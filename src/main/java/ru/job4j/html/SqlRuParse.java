@@ -19,11 +19,7 @@ public class SqlRuParse implements Parse {
             Elements row = doc.select(".postslisttopic");
             for (Element element : row) {
                 Element href = element.child(0);
-                Post post = new Post();
-                post.setLink(href.attr("href"));
-                post.setName(href.text());
-                post.setTextDate(href.attr("href"));
-                rsl.add(post);
+                rsl.add(detail(href.attr("href")));
             }
         }
         return rsl;
