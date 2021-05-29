@@ -98,4 +98,15 @@ public class Post {
         System.out.println(post.getText());
         System.out.println(post.getCreated());
     }
+
+    @Override
+    public String toString() {
+        return "Post{" +
+                "id=" + id +
+                ", name='" + name + '\'' +
+                ", text='" + text + '\'' +
+                ", link='" + link + '\'' +
+                ", created=" + created +
+                '}' + "\n\n\n";
+    }
 }
